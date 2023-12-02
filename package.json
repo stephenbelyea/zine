@@ -1,0 +1,16 @@
+{
+  "name": "zine",
+  "description": "Dead simple markdown-based zine generator.",
+  "version": "1.0.0",
+  "main": "public/index.html",
+  "homepage": "https://github.com/stephenbelyea/zine/blob/main/README.md",
+  "dependencies": {
+    "serve": "^14.2.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "serve public"
+  },
+  "author": "stephenbelyea",
+  "license": "ISC"
+}
