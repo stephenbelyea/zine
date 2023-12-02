@@ -1,43 +1,56 @@
 const converterOptions = {
   emoji: true,
+  headerLevelStart: 2,
   metadata: true,
   strikethrough: true,
 };
 
+const paths = {
+  home: "./zine/index.md",
+};
+
 const els = {
   meta: document.querySelector('meta[name="description"]'),
-  name: document.getElementById("name"),
-  home: document.getElementById("home"),
+  header: document.getElementById("header"),
+  main: document.getElementById("main"),
   footer: document.getElementById("footer"),
 };
 
 const getYear = new Date().getFullYear();
 
-const getZineHome = async () => {
-  const converter = new showdown.Converter(converterOptions);
+const getPageData = async (path = paths.home, options = converterOptions) => {
+  const converter = new showdown.Converter(options);
   try {
-    const response = await (await fetch("./zine/index.md")).text();
-    const zineHome = await converter.makeHtml(response);
-    return { zineHome, zineMeta: converter.getMetadata() };
+    const response = await (await fetch(path)).text();
+    const content = await converter.makeHtml(response);
+    return { content, meta: converter.getMetadata() };
   } catch (e) {
     console.log("Looks like yer zine is messed up!");
     return;
   }
 };
 
+const buildHeaderText = ({ name, description }) =>
+  [`<h1>${name}</h1>`, `<p>${description}</p>`].join("");
+
 const buildFooterText = ({ circa, name, owner }) =>
-  [`&copy;${circa}-${getYear}`, `${name} | ${owner}`].join(" ");
+  [
+    `<p>`,
+    `<span>&copy;${circa}-${getYear}</span> `,
+    `<span>${name} | ${owner}</span>`,
+    `</p>`,
+  ].join("");
 
 const buildZineHome = async () => {
-  const { zineHome, zineMeta } = await getZineHome();
+  const { content, meta } = await getPageData();
 
-  document.title = zineMeta.name;
-  els.meta.setAttribute("content", zineMeta.description);
+  document.title = meta.name;
+  els.meta.setAttribute("content", meta.description);
 
-  els.name.textContent = zineMeta.name;
-  if (zineHome) els.home.innerHTML = zineHome;
+  els.header.innerHTML = buildHeaderText(meta);
+  els.footer.innerHTML = buildFooterText(meta);
 
-  els.footer.innerHTML = `<p>${buildFooterText(zineMeta)}</p>`;
+  if (content) els.main.insertAdjacentHTML("afterbegin", content);
 };
 
 (async () => {
